@@ -7,23 +7,27 @@ export default function ReguasList({ initialReguas }) {
   const [reguas, setReguas] = useState(initialReguas)
   const [editando, setEditando] = useState(null) // null | 'nova' | reguaObj
   const [dispatchMsg, setDispatchMsg] = useState({}) // { [reguaId]: string }
+  const [toggleError, setToggleError] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   async function handleToggle(regua) {
+    setToggleError('')
     try {
       await api.put(`/reguas/${regua.id}`, { ativo: !regua.ativo })
       setReguas(rs => rs.map(r => r.id === regua.id ? { ...r, ativo: !r.ativo } : r))
     } catch (err) {
-      alert(`Erro ao alterar status: ${err.message}`)
+      setToggleError(`Erro ao alterar status: ${err.message}`)
     }
   }
 
   async function handleDelete(id) {
     if (!confirm('Excluir esta régua? Esta ação não pode ser desfeita.')) return
+    setDeleteError('')
     try {
       await api.delete(`/reguas/${id}`)
       setReguas(rs => rs.filter(r => r.id !== id))
     } catch (err) {
-      alert(`Erro ao excluir: ${err.message}`)
+      setDeleteError(`Erro ao excluir: ${err.message}`)
     }
   }
 
@@ -73,6 +77,8 @@ export default function ReguasList({ initialReguas }) {
           + Nova régua
         </button>
       </div>
+      {toggleError && <p className="text-red-500 text-sm">{toggleError}</p>}
+      {deleteError && <p className="text-red-500 text-sm">{deleteError}</p>}
       <div className="bg-white border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">

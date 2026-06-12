@@ -6,7 +6,7 @@ export default async function ReguasPage() {
     const supabase = await createClient()
     const { data: reguas } = await supabase
       .from('reguas')
-      .select('*')
+      .select('id, nome, tipo, dias, horario, ativo, template_matrix_id, criado_em')
       .order('criado_em', { ascending: false })
 
     return (

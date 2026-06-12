@@ -11,6 +11,7 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
     template_matrix_id: regua?.template_matrix_id ?? '',
   })
   const [templates, setTemplates] = useState([])
+  const [templatesLoading, setTemplatesLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -18,6 +19,7 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
     api.get('/dispatch/templates')
       .then(setTemplates)
       .catch(() => setTemplates([]))
+      .finally(() => setTemplatesLoading(false))
   }, [])
 
   function set(field) {
@@ -29,10 +31,11 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
     setLoading(true)
     setError('')
     try {
+      const payload = { ...form, dias: Number(form.dias) }
       if (regua) {
-        await api.put(`/reguas/${regua.id}`, form)
+        await api.put(`/reguas/${regua.id}`, payload)
       } else {
-        await api.post('/reguas', { ...form, dias: Number(form.dias) })
+        await api.post('/reguas', payload)
       }
       onSave()
     } catch (err) {
@@ -67,17 +70,26 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
       </div>
       <div>
         <label className="block text-sm font-medium mb-1">Template Matrix Go</label>
-        <select className={inputClass} value={form.template_matrix_id} onChange={set('template_matrix_id')} required>
-          <option value="">Selecione um template...</option>
-          {templates.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
+        <select
+          className={inputClass}
+          value={form.template_matrix_id}
+          onChange={e => setForm(f => ({ ...f, template_matrix_id: e.target.value }))}
+          required
+          disabled={templatesLoading}
+        >
+          {templatesLoading
+            ? <option value="">Carregando templates...</option>
+            : <>
+                <option value="">Selecione um template...</option>
+                {templates.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+                {templates.length === 0 && (
+                  <option disabled>Nenhum template encontrado — verifique as credenciais Matrix Go</option>
+                )}
+              </>
+          }
         </select>
-        {templates.length === 0 && (
-          <p className="text-xs text-gray-400 mt-1">
-            Nenhum template carregado. Verifique as credenciais da Matrix Go nas Configurações.
-          </p>
-        )}
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <div className="flex gap-3 pt-2">
