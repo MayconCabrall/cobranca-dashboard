@@ -6,14 +6,19 @@ export default function DispatchButton() {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
 
+  function showMsg(text) {
+    setMsg(text)
+    setTimeout(() => setMsg(''), 5000)
+  }
+
   async function handleDispatch() {
     setLoading(true)
     setMsg('')
     try {
       await api.post('/dispatch', {})
-      setMsg('Disparado com sucesso!')
+      showMsg('Disparado com sucesso!')
     } catch (err) {
-      setMsg(`Erro: ${err.message}`)
+      showMsg(`Erro: ${err.message}`)
     } finally {
       setLoading(false)
     }
