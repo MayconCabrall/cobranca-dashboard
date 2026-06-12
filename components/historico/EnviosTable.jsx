@@ -15,7 +15,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
   const [detalhe, setDetalhe] = useState(null)
   const [page, setPage] = useState(1)
   const [reenvioMsg, setReenvioMsg] = useState({}) // { [envioId]: string }
-  const total = initialEnvios.total
+  const [total, setTotal] = useState(initialEnvios.total)
 
   async function buscar(novosFiltros = filtros, novaPagina = page) {
     const params = new URLSearchParams({ page: novaPagina })
@@ -23,6 +23,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
     if (novosFiltros.regua_id) params.set('regua_id', novosFiltros.regua_id)
     const data = await api.get(`/envios?${params}`)
     setEnvios(data.data)
+    setTotal(data.total)
   }
 
   async function handleReenviar(envioId) {
