@@ -8,7 +8,9 @@ export default function ConfiguracoesPage() {
   const [syncMsg, setSyncMsg] = useState('')
 
   useEffect(() => {
-    api.get('/sync/logs?limit=5').then(setSyncLogs).catch(() => {})
+    api.get('/sync/logs?limit=5')
+      .then(data => setSyncLogs(Array.isArray(data) ? data : []))
+      .catch(err => setSyncMsg(`Erro ao carregar logs: ${err.message}`))
   }, [])
 
   async function handleSync() {
@@ -18,7 +20,7 @@ export default function ConfiguracoesPage() {
       const result = await api.post('/sync', {})
       setSyncMsg(`Sync concluído: ${result.clientes_sync} clientes, ${result.faturas_sync} faturas`)
       const logs = await api.get('/sync/logs?limit=5')
-      setSyncLogs(logs)
+      setSyncLogs(Array.isArray(logs) ? logs : [])
     } catch (err) {
       setSyncMsg(`Erro: ${err.message}`)
     } finally {
@@ -44,7 +46,11 @@ export default function ConfiguracoesPage() {
           >
             {syncing ? 'Sincronizando...' : 'Sincronizar agora'}
           </button>
-          {syncMsg && <span className="text-sm text-gray-600">{syncMsg}</span>}
+          {syncMsg && (
+            <span className={`text-sm ${syncMsg.startsWith('Erro') ? 'text-red-600' : 'text-green-700'}`}>
+              {syncMsg}
+            </span>
+          )}
         </div>
         <div>
           <p className="text-sm font-medium mb-2">Últimas sincronizações</p>
@@ -52,7 +58,7 @@ export default function ConfiguracoesPage() {
             {syncLogs.map(log => (
               <div key={log.id} className="flex items-center justify-between text-sm py-2 border-b last:border-0">
                 <span className="text-gray-500">{new Date(log.iniciado_em).toLocaleString('pt-BR')}</span>
-                <span>{log.clientes_sync} clientes, {log.faturas_sync} faturas</span>
+                <span>{log.clientes_sync ?? '—'} clientes, {log.faturas_sync ?? '—'} faturas</span>
                 <span className={log.status === 'sucesso' ? 'text-green-600' : 'text-red-600'}>
                   {log.status}
                 </span>
