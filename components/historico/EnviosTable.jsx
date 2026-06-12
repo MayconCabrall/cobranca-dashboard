@@ -42,7 +42,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
     const novos = { ...filtros, [campo]: valor }
     setFiltros(novos)
     setPage(1)
-    buscar(novos, 1)
+    buscar(novos, 1).catch(console.error)
   }
 
   return (
@@ -72,8 +72,8 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              {['Cliente', 'Telefone', 'Vencimento', 'Valor', 'Régua', 'Status', 'Data/Hora', ''].map(h => (
-                <th key={h} className="text-left px-4 py-3 font-medium text-gray-600">{h}</th>
+              {['Cliente', 'Telefone', 'Vencimento', 'Valor', 'Régua', 'Status', 'Data/Hora', 'acoes'].map(h => (
+                <th key={h} className="text-left px-4 py-3 font-medium text-gray-600">{h !== 'acoes' ? h : ''}</th>
               ))}
             </tr>
           </thead>
@@ -97,7 +97,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
                   {STATUS_LABEL[e.status] ?? e.status}
                 </td>
                 <td className="px-4 py-3 text-gray-500">
-                  {new Date(e.enviado_em).toLocaleString('pt-BR')}
+                  {e.enviado_em ? new Date(e.enviado_em).toLocaleString('pt-BR') : '-'}
                 </td>
                 <td className="px-4 py-3" onClick={ev => ev.stopPropagation()}>
                   {e.status === 'falhou' && (
@@ -131,7 +131,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <button
           disabled={page === 1}
-          onClick={() => { setPage(p => p - 1); buscar(filtros, page - 1) }}
+          onClick={() => { const prev = page - 1; setPage(prev); buscar(filtros, prev).catch(console.error) }}
           className="px-3 py-1 border rounded disabled:opacity-30"
         >
           ←
@@ -139,7 +139,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
         <span>Página {page} · {total} registros</span>
         <button
           disabled={page * 50 >= total}
-          onClick={() => { setPage(p => p + 1); buscar(filtros, page + 1) }}
+          onClick={() => { const next = page + 1; setPage(next); buscar(filtros, next).catch(console.error) }}
           className="px-3 py-1 border rounded disabled:opacity-30"
         >
           →
@@ -174,7 +174,7 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
               </div>
               <div>
                 <dt className="text-gray-500">Enviado em</dt>
-                <dd>{new Date(detalhe.enviado_em).toLocaleString('pt-BR')}</dd>
+                <dd>{detalhe.enviado_em ? new Date(detalhe.enviado_em).toLocaleString('pt-BR') : '-'}</dd>
               </div>
               {detalhe.erro && (
                 <div>

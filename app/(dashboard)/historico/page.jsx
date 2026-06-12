@@ -13,6 +13,9 @@ export default async function HistoricoPage() {
     supabase.from('reguas').select('id, nome').order('nome'),
   ])
 
+  if (enviosRes.error) console.error('Erro ao buscar envios:', enviosRes.error.message)
+  if (reguasRes.error) console.error('Erro ao buscar réguas:', reguasRes.error.message)
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Histórico de Envios</h1>

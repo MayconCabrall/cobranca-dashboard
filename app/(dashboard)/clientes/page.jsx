@@ -1,5 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 
+const STATUS_COLOR = {
+  ativo: 'bg-green-100 text-green-700',
+  inativo: 'bg-gray-100 text-gray-500',
+  bloqueado: 'bg-red-100 text-red-600',
+}
+
 export default async function ClientesPage({ searchParams }) {
   const supabase = await createClient()
   const { status: statusFiltro } = await searchParams
@@ -12,13 +18,8 @@ export default async function ClientesPage({ searchParams }) {
 
   if (statusFiltro) query = query.eq('status', statusFiltro)
 
-  const { data: clientes, count } = await query
-
-  const STATUS_COLOR = {
-    ativo: 'bg-green-100 text-green-700',
-    inativo: 'bg-gray-100 text-gray-500',
-    bloqueado: 'bg-red-100 text-red-600',
-  }
+  const { data: clientes, count, error } = await query
+  if (error) console.error('Erro ao buscar clientes:', error.message)
 
   return (
     <div className="space-y-6">
@@ -28,7 +29,7 @@ export default async function ClientesPage({ searchParams }) {
         {['', 'ativo', 'inativo', 'bloqueado'].map(s => (
           <a
             key={s}
-            href={s ? `?status=${s}` : '/clientes'}
+            href={s ? `?status=${s}` : '?'}
             className={`px-3 py-1 rounded-full text-sm border transition-colors ${statusFiltro === s || (!statusFiltro && !s) ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}`}
           >
             {s || 'Todos'}
