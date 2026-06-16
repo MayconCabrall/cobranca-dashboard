@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { api } from '@/lib/api'
+import { listarReguas, excluirRegua, salvarRegua, triggerDispatch } from '@/lib/db'
 import ReguaForm from './ReguaForm'
 
 export default function ReguasList({ initialReguas }) {
@@ -13,7 +13,7 @@ export default function ReguasList({ initialReguas }) {
   async function handleToggle(regua) {
     setToggleError('')
     try {
-      await api.put(`/reguas/${regua.id}`, { ativo: !regua.ativo })
+      await salvarRegua({ ativo: !regua.ativo }, regua.id)
       setReguas(rs => rs.map(r => r.id === regua.id ? { ...r, ativo: !r.ativo } : r))
     } catch (err) {
       setToggleError(`Erro ao alterar status: ${err.message}`)
@@ -24,7 +24,7 @@ export default function ReguasList({ initialReguas }) {
     if (!confirm('Excluir esta régua? Esta ação não pode ser desfeita.')) return
     setDeleteError('')
     try {
-      await api.delete(`/reguas/${id}`)
+      await excluirRegua(id)
       setReguas(rs => rs.filter(r => r.id !== id))
     } catch (err) {
       setDeleteError(`Erro ao excluir: ${err.message}`)
@@ -33,7 +33,7 @@ export default function ReguasList({ initialReguas }) {
 
   async function handleDispatch(id) {
     try {
-      await api.post(`/dispatch/${id}`, {})
+      await triggerDispatch(id)
       setDispatchMsg(m => ({ ...m, [id]: 'Disparado!' }))
       setTimeout(() => setDispatchMsg(m => ({ ...m, [id]: '' })), 4000)
     } catch (err) {
@@ -44,7 +44,7 @@ export default function ReguasList({ initialReguas }) {
 
   async function handleSave() {
     try {
-      const data = await api.get('/reguas')
+      const data = await listarReguas()
       setReguas(data)
     } catch {
       // Lista atualiza na próxima interação

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { api } from '@/lib/api'
+import { listarEnvios, reenviarEnvio } from '@/lib/db'
 
 const STATUS_LABEL = { enviado: '✅ Enviado', falhou: '❌ Falhou', pulado: '⏭️ Pulado' }
 const STATUS_COLOR = {
@@ -18,17 +18,14 @@ export default function EnviosTable({ envios: initialEnvios, reguas }) {
   const [total, setTotal] = useState(initialEnvios.total)
 
   async function buscar(novosFiltros = filtros, novaPagina = page) {
-    const params = new URLSearchParams({ page: novaPagina })
-    if (novosFiltros.status) params.set('status', novosFiltros.status)
-    if (novosFiltros.regua_id) params.set('regua_id', novosFiltros.regua_id)
-    const data = await api.get(`/envios?${params}`)
+    const data = await listarEnvios({ ...novosFiltros, page: novaPagina })
     setEnvios(data.data)
     setTotal(data.total)
   }
 
   async function handleReenviar(envioId) {
     try {
-      await api.post(`/envios/${envioId}/reenviar`, {})
+      await reenviarEnvio(envioId)
       await buscar()
       setReenvioMsg(m => ({ ...m, [envioId]: 'Reenvio iniciado!' }))
       setTimeout(() => setReenvioMsg(m => ({ ...m, [envioId]: '' })), 4000)

@@ -1,6 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { api } from '@/lib/api'
+import { useState } from 'react'
+import { salvarRegua } from '@/lib/db'
 
 export default function ReguaForm({ regua, onSave, onCancel }) {
   const [form, setForm] = useState({
@@ -10,17 +10,8 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
     horario: regua?.horario ?? '08:00',
     template_matrix_id: regua?.template_matrix_id ?? '',
   })
-  const [templates, setTemplates] = useState([])
-  const [templatesLoading, setTemplatesLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    api.get('/dispatch/templates')
-      .then(setTemplates)
-      .catch(() => setTemplates([]))
-      .finally(() => setTemplatesLoading(false))
-  }, [])
 
   function set(field) {
     return (e) => setForm(f => ({ ...f, [field]: e.target.value }))
@@ -32,11 +23,7 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
     setError('')
     try {
       const payload = { ...form, dias: Number(form.dias) }
-      if (regua) {
-        await api.put(`/reguas/${regua.id}`, payload)
-      } else {
-        await api.post('/reguas', payload)
-      }
+      await salvarRegua(payload, regua?.id ?? null)
       onSave()
     } catch (err) {
       setError(err.message)
@@ -69,27 +56,8 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
         <input type="time" className={inputClass} value={form.horario} onChange={set('horario')} required />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Template Matrix Go</label>
-        <select
-          className={inputClass}
-          value={form.template_matrix_id}
-          onChange={e => setForm(f => ({ ...f, template_matrix_id: e.target.value }))}
-          required
-          disabled={templatesLoading}
-        >
-          {templatesLoading
-            ? <option value="">Carregando templates...</option>
-            : <>
-                <option value="">Selecione um template...</option>
-                {templates.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-                {templates.length === 0 && (
-                  <option disabled>Nenhum template encontrado — verifique as credenciais Matrix Go</option>
-                )}
-              </>
-          }
-        </select>
+        <label className="block text-sm font-medium mb-1">ID do Template Matrix Go</label>
+        <input className={inputClass} value={form.template_matrix_id} onChange={set('template_matrix_id')} required placeholder="Ex: 11" />
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <div className="flex gap-3 pt-2">

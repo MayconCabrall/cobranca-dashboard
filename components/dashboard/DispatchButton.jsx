@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { api } from '@/lib/api'
+import { triggerDispatch } from '@/lib/db'
 
 export default function DispatchButton() {
   const [loading, setLoading] = useState(false)
@@ -15,7 +15,7 @@ export default function DispatchButton() {
     setLoading(true)
     setMsg('')
     try {
-      await api.post('/dispatch', {})
+      await triggerDispatch()
       showMsg('Disparado com sucesso!')
     } catch (err) {
       showMsg(`Erro: ${err.message}`)

@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { api } from '@/lib/api'
+import { listarSyncLogs, triggerSync } from '@/lib/db'
 
 export default function ConfiguracoesPage() {
   const [syncLogs, setSyncLogs] = useState([])
@@ -8,8 +8,8 @@ export default function ConfiguracoesPage() {
   const [syncMsg, setSyncMsg] = useState('')
 
   useEffect(() => {
-    api.get('/sync/logs?limit=5')
-      .then(data => setSyncLogs(Array.isArray(data) ? data : []))
+    listarSyncLogs(5)
+      .then(setSyncLogs)
       .catch(err => setSyncMsg(`Erro ao carregar logs: ${err.message}`))
   }, [])
 
@@ -17,10 +17,10 @@ export default function ConfiguracoesPage() {
     setSyncing(true)
     setSyncMsg('')
     try {
-      const result = await api.post('/sync', {})
-      setSyncMsg(`Sync concluído: ${result.clientes_sync} clientes, ${result.faturas_sync} faturas`)
-      const logs = await api.get('/sync/logs?limit=5')
-      setSyncLogs(Array.isArray(logs) ? logs : [])
+      const result = await triggerSync()
+      setSyncMsg(`Sync concluído: ${result?.clientes_sync ?? 0} clientes`)
+      const logs = await listarSyncLogs(5)
+      setSyncLogs(logs)
     } catch (err) {
       setSyncMsg(`Erro: ${err.message}`)
     } finally {
@@ -75,7 +75,7 @@ export default function ConfiguracoesPage() {
       <section className="bg-white border rounded-xl p-6 space-y-4">
         <h2 className="font-semibold">Matrix Go API</h2>
         <p className="text-sm text-gray-500">
-          As credenciais são configuradas via variáveis de ambiente na API. Para alterar, edite o arquivo <code className="bg-gray-100 px-1 rounded">.env</code> da <code className="bg-gray-100 px-1 rounded">api-cobranca</code> e reinicie o processo no PM2.
+          As credenciais são configuradas via variáveis de ambiente nas Edge Functions do Supabase.
         </p>
         <div className="bg-gray-50 rounded-lg p-4 text-sm font-mono space-y-1 text-gray-600">
           <p>MATRIX_GO_API_URL=...</p>
