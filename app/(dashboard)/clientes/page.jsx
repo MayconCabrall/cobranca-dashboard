@@ -2,9 +2,13 @@ import { createClient } from '@/lib/supabase/server'
 
 const STATUS_COLOR = {
   ativo: 'bg-green-100 text-green-700',
-  inativo: 'bg-gray-100 text-gray-500',
+  suspenso: 'bg-amber-100 text-amber-700',
   bloqueado: 'bg-red-100 text-red-600',
+  inativo: 'bg-gray-100 text-gray-500',
 }
+// fallback p/ qualquer status que apareça e não esteja no mapa acima
+const STATUS_FALLBACK = 'bg-slate-100 text-slate-600'
+const STATUS_FILTROS = ['', 'ativo', 'suspenso', 'bloqueado', 'inativo']
 
 export default async function ClientesPage({ searchParams }) {
   const supabase = await createClient()
@@ -26,11 +30,11 @@ export default async function ClientesPage({ searchParams }) {
       <h1 className="text-2xl font-bold">Clientes</h1>
       <p className="text-gray-500 text-sm">{count ?? 0} clientes sincronizados do Voalle</p>
       <div className="flex gap-2">
-        {['', 'ativo', 'inativo', 'bloqueado'].map(s => (
+        {STATUS_FILTROS.map(s => (
           <a
             key={s}
             href={s ? `?status=${s}` : '?'}
-            className={`px-3 py-1 rounded-full text-sm border transition-colors ${statusFiltro === s || (!statusFiltro && !s) ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}`}
+            className={`px-3 py-1 rounded-full text-sm border transition-colors capitalize ${statusFiltro === s || (!statusFiltro && !s) ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}`}
           >
             {s || 'Todos'}
           </a>
@@ -52,7 +56,7 @@ export default async function ClientesPage({ searchParams }) {
                 <td className="px-4 py-3 text-gray-500">{c.telefone}</td>
                 <td className="px-4 py-3 text-gray-500">{c.cpf_cnpj}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[c.status] ?? ''}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_COLOR[c.status] ?? STATUS_FALLBACK}`}>
                     {c.status}
                   </span>
                 </td>

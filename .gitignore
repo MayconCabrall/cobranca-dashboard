@@ -36,6 +36,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Claude Code / ferramentas locais (não versionar)
+.claude/
+.mcp.json
+.agents
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

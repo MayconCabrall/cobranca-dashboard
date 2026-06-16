@@ -18,7 +18,11 @@ export default function ConfiguracoesPage() {
     setSyncMsg('')
     try {
       const result = await triggerSync()
-      setSyncMsg(`Sync concluído: ${result?.clientes_sync ?? 0} clientes`)
+      setSyncMsg(
+        `Sync concluído: ${result?.recebidos ?? 0} clientes com fatura ` +
+        `(${result?.inseridos ?? 0} novos, ${result?.atualizados ?? 0} atualizados` +
+        `${result?.paginas != null ? `, ${result.paginas} páginas` : ''})`
+      )
       const logs = await listarSyncLogs(5)
       setSyncLogs(logs)
     } catch (err) {
