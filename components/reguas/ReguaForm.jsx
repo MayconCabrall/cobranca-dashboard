@@ -37,26 +37,26 @@ export default function ReguaForm({ regua, onSave, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium mb-1">Nome</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
         <input className={inputClass} value={form.nome} onChange={set('nome')} required />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Tipo</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
         <select className={inputClass} value={form.tipo} onChange={set('tipo')}>
           <option value="pre_vencimento">Pré-vencimento</option>
           <option value="pos_vencimento">Pós-vencimento</option>
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Dias antes/depois do vencimento</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Dias antes/depois do vencimento</label>
         <input type="number" min="1" className={inputClass} value={form.dias} onChange={set('dias')} required />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">Horário de disparo</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Horário de disparo</label>
         <input type="time" className={inputClass} value={form.horario} onChange={set('horario')} required />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">ID do Template Matrix Go</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">ID do Template Matrix Go</label>
         <input className={inputClass} value={form.template_matrix_id} onChange={set('template_matrix_id')} required placeholder="Ex: 11" />
       </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
